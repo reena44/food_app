@@ -17,6 +17,7 @@ class RowBindingAdapter {
         fun loadImageFromUrl(imageView: ImageView,url:String){
             imageView.load(url){
                 crossfade(600)
+                //error(R.drawable.ic_error_placeholder)
             }
 
         }

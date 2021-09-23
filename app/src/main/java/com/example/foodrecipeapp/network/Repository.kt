@@ -1,7 +1,6 @@
 package com.example.foodrecipeapp.network
 
-import com.example.foodrecipeapp.LocalDataSource
-import dagger.hilt.android.qualifiers.ActivityContext
+import com.example.foodrecipeapp.data.LocalDataSource
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import javax.inject.Inject
 

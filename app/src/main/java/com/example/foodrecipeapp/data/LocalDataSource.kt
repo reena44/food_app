@@ -1,4 +1,4 @@
-package com.example.foodrecipeapp
+package com.example.foodrecipeapp.data
 
 import com.example.foodrecipeapp.model.FoodRecipe
 import com.example.foodrecipeapp.room.RecipesDao

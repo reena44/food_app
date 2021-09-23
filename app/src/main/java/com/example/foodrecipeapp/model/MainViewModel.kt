@@ -1,4 +1,4 @@
-package com.example.foody.viewmodels
+package com.example.foodrecipeapp.model
 
 import android.app.Application
 import android.content.Context
@@ -6,7 +6,6 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
-import com.example.foodrecipeapp.model.FoodRecipe
 import com.example.foodrecipeapp.network.Repository
 import com.example.foodrecipeapp.room.RecipesEntity
 import com.example.foodrecipeapp.util.NetworkResult

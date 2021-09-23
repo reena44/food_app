@@ -9,20 +9,36 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.foodrecipeapp.R
 import com.example.foodrecipeapp.adapter.RecipesAdapter
-import com.example.foodrecipeapp.recipes.RecipesViewModel
+import com.example.foodrecipeapp.databinding.FragmentRecipesBinding
+import com.example.foodrecipeapp.model.MainViewModel
 import com.example.foodrecipeapp.util.NetworkResult
-import com.example.foody.viewmodels.MainViewModel
+import com.example.foodrecipeapp.util.observeOnce
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_recipes.view.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
+@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class RecipesFragment : Fragment() {
 
+    private  val args by navArgs<RecipesFragmentArgs>()
+
+
+    private var _binding: FragmentRecipesBinding? = null
+    private val binding get() = _binding!!
+
+    var networkStatus = false
+    var backOnline = false
+
+
     private lateinit var mainViewModel: MainViewModel
+
+
     private lateinit var recipesViewModel: RecipesViewModel
     private val mAdapter by lazy { RecipesAdapter() }
     private lateinit var mView: View
@@ -38,21 +54,28 @@ class RecipesFragment : Fragment() {
             savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        mView = inflater.inflate(R.layout.fragment_recipes, container, false)
+        _binding = FragmentRecipesBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.mainViewModel = mainViewModel
 
         setupRecyclerView()
         //requestApiData()
         readDatabase()
 
-        return mView
+        binding.floatingActionButton.setOnClickListener {
+                findNavController().navigate(R.id.action_recipesFragment_to_bottomSheetFragment)
+               }
+
+
+        return binding.root
     }
 
     private fun readDatabase() {
         lifecycleScope.launch {
 
-            mainViewModel.readRecipe.observe(viewLifecycleOwner, { database ->
+            mainViewModel.readRecipe.observeOnce(viewLifecycleOwner, { database ->
 
-                if (database.isNotEmpty()) {
+                if (database.isNotEmpty() && !args.backFromBottomSheet) {
                     Log.d("RecipesFragment", "readDatabase called")
                     mAdapter.setData(database[0].foodRecipe)
                     hideShimmerEffect()
@@ -106,17 +129,35 @@ class RecipesFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        mView.recyclerview.adapter = mAdapter
-        mView.recyclerview.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerview.adapter = mAdapter
+        binding.recyclerview.layoutManager = LinearLayoutManager(requireContext())
         showShimmerEffect()
     }
 
     private fun showShimmerEffect() {
-        mView.recyclerview.showShimmer()
+        binding.recyclerview.showShimmer()
     }
 
     private fun hideShimmerEffect() {
-        mView.recyclerview.hideShimmer()
+        binding.recyclerview.hideShimmer()
     }
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+
+    }
+
+    /*fun showNetworkStatus() {
+        if (!networkStatus) {
+            Toast.makeText(getApplication(), "No Internet Connection.", Toast.LENGTH_SHORT).show()
+            saveBackOnline(true)
+        } else if (networkStatus) {
+            if (backOnline) {
+                Toast.makeText(getApplication(), "We're back online.", Toast.LENGTH_SHORT).show()
+                saveBackOnline(false)
+            }
+        }
+    }*/
+
 
 }

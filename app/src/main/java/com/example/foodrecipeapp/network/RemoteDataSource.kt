@@ -1,5 +1,4 @@
 package com.example.foodrecipeapp.network
-import com.example.foodrecipeapp.FoodRecipesApi
 import com.example.foodrecipeapp.model.FoodRecipe
 import javax.inject.Inject
 
