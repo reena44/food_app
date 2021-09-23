@@ -16,32 +16,28 @@ import com.example.foodrecipeapp.R
 import com.example.foodrecipeapp.adapter.RecipesAdapter
 import com.example.foodrecipeapp.databinding.FragmentRecipesBinding
 import com.example.foodrecipeapp.model.MainViewModel
+import com.example.foodrecipeapp.util.NetworkListener
 import com.example.foodrecipeapp.util.NetworkResult
 import com.example.foodrecipeapp.util.observeOnce
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class RecipesFragment : Fragment() {
 
-    private  val args by navArgs<RecipesFragmentArgs>()
-
+    private val args by navArgs<RecipesFragmentArgs>()
 
     private var _binding: FragmentRecipesBinding? = null
     private val binding get() = _binding!!
 
-    var networkStatus = false
-    var backOnline = false
-
-
     private lateinit var mainViewModel: MainViewModel
-
-
     private lateinit var recipesViewModel: RecipesViewModel
     private val mAdapter by lazy { RecipesAdapter() }
-    private lateinit var mView: View
+
+    private lateinit var networkListener: NetworkListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,40 +55,58 @@ class RecipesFragment : Fragment() {
         binding.mainViewModel = mainViewModel
 
         setupRecyclerView()
-        //requestApiData()
-        readDatabase()
+
+        recipesViewModel.readBackOnline.observe(viewLifecycleOwner, {
+            recipesViewModel.backOnline = it
+        })
+
+        lifecycleScope.launch {
+            networkListener = NetworkListener()
+            networkListener.checkNetworkAvailable(requireContext())
+                    .collect { status ->
+                        Log.d("NetworkListener", status.toString())
+                        recipesViewModel.networkStatus = status
+                        recipesViewModel.showNetworkStatus()
+                        readDatabase()
+                    }
+        }
 
         binding.floatingActionButton.setOnClickListener {
+            if (recipesViewModel.networkStatus) {
                 findNavController().navigate(R.id.action_recipesFragment_to_bottomSheetFragment)
-               }
-
+            } else {
+                recipesViewModel.showNetworkStatus()
+            }
+        }
 
         return binding.root
     }
 
+    private fun setupRecyclerView() {
+        binding.recyclerview.adapter = mAdapter
+        binding.recyclerview.layoutManager = LinearLayoutManager(requireContext())
+        showShimmerEffect()
+    }
+
     private fun readDatabase() {
         lifecycleScope.launch {
-
             mainViewModel.readRecipe.observeOnce(viewLifecycleOwner, { database ->
-
                 if (database.isNotEmpty() && !args.backFromBottomSheet) {
-                    Log.d("RecipesFragment", "readDatabase called")
+                    Log.d("RecipesFragment", "readDatabase called!")
                     mAdapter.setData(database[0].foodRecipe)
                     hideShimmerEffect()
                 } else {
                     requestApiData()
                 }
-
             })
         }
     }
 
     private fun requestApiData() {
-        Log.d("RecipesFragment","requestApiData called")
-
+        Log.d("RecipesFragment", "requestApiData called!")
         mainViewModel.getRecipes(recipesViewModel.applyQueries())
         mainViewModel.recipesResponse.observe(viewLifecycleOwner, { response ->
-            when(response){
+            when (response) {
                 is NetworkResult.Success -> {
                     hideShimmerEffect()
                     response.data?.let { mAdapter.setData(it) }
@@ -102,11 +116,11 @@ class RecipesFragment : Fragment() {
                     loadDataFromCache()
                     Toast.makeText(
                             requireContext(),
-                            response.toString(),
+                            response.mesaage.toString(),
                             Toast.LENGTH_SHORT
                     ).show()
                 }
-                is NetworkResult.Loading ->{
+                is NetworkResult.Loading -> {
                     showShimmerEffect()
                 }
             }
@@ -116,22 +130,11 @@ class RecipesFragment : Fragment() {
     private fun loadDataFromCache() {
         lifecycleScope.launch {
             mainViewModel.readRecipe.observe(viewLifecycleOwner, { database ->
-
                 if (database.isNotEmpty()) {
                     mAdapter.setData(database[0].foodRecipe)
-                    hideShimmerEffect()
                 }
             })
-
         }
-
-
-    }
-
-    private fun setupRecyclerView() {
-        binding.recyclerview.adapter = mAdapter
-        binding.recyclerview.layoutManager = LinearLayoutManager(requireContext())
-        showShimmerEffect()
     }
 
     private fun showShimmerEffect() {
@@ -141,23 +144,9 @@ class RecipesFragment : Fragment() {
     private fun hideShimmerEffect() {
         binding.recyclerview.hideShimmer()
     }
+
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
-
     }
-
-    /*fun showNetworkStatus() {
-        if (!networkStatus) {
-            Toast.makeText(getApplication(), "No Internet Connection.", Toast.LENGTH_SHORT).show()
-            saveBackOnline(true)
-        } else if (networkStatus) {
-            if (backOnline) {
-                Toast.makeText(getApplication(), "We're back online.", Toast.LENGTH_SHORT).show()
-                saveBackOnline(false)
-            }
-        }
-    }*/
-
-
 }
