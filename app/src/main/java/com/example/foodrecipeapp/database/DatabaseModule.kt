@@ -1,8 +1,7 @@
-package com.example.foodrecipeapp.room
+package com.example.foodrecipeapp.database
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.RoomDatabase
 import com.example.foodrecipeapp.util.Constants.Companion.DATABASE_NAME
 import dagger.Module
 import dagger.Provides

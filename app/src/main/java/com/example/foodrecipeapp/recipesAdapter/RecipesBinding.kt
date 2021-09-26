@@ -4,9 +4,8 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
-import androidx.room.RoomDatabase
 import com.example.foodrecipeapp.model.FoodRecipe
-import com.example.foodrecipeapp.room.RecipesEntity
+import com.example.foodrecipeapp.database.entities.RecipesEntity
 import com.example.foodrecipeapp.util.NetworkResult
 
 class RecipesBinding {

@@ -1,3 +1,4 @@
+
 package com.example.foodrecipeapp.util
 
 import android.content.Context
@@ -16,9 +17,11 @@ class NetworkListener:ConnectivityManager.NetworkCallback(){
   fun checkNetworkAvailable(context: Context):MutableStateFlow<Boolean>{
 
        val connectivityManager =  context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        connectivityManager.registerDefaultNetworkCallback(this)
+      if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+          connectivityManager.registerDefaultNetworkCallback(this)
+      }
 
-        var isConnected = false
+      var isConnected = false
 
         connectivityManager.allNetworks.forEach {network->
             val networkCapability = connectivityManager.getNetworkCapabilities(network)
