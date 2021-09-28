@@ -13,5 +13,5 @@ class Repository @Inject constructor(
 ) {
 
     val remote = remoteDataSource
-    val localDataSource = localDataSource
+    val local = localDataSource
 }

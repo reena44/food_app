@@ -23,31 +23,31 @@ class MainViewModel @ViewModelInject constructor(
 
     /** ROOM DATABASE */
 
-    val readRecipe:LiveData<List<RecipesEntity>> = repository.localDataSource.readRecipes().asLiveData()
-    val readFoodJoke: LiveData<List<FoodJokeEntity>> = repository.localDataSource.readFoodJoke().asLiveData()
-    val readFavoriteRecipe:LiveData<List<FavoritesEntity>> = repository.localDataSource.readFavoriteRecipe().asLiveData()
+    val readRecipe:LiveData<List<RecipesEntity>> = repository.local.readRecipes().asLiveData()
+    val readFoodJoke: LiveData<List<FoodJokeEntity>> = repository.local.readFoodJoke().asLiveData()
+    val readFavoriteRecipe:LiveData<List<FavoritesEntity>> = repository.local.readFavoriteRecipe().asLiveData()
 
     private fun insertRecipes(recipesEntity: RecipesEntity){
         viewModelScope.launch (Dispatchers.IO){
-            repository.localDataSource.insertRecipes(recipesEntity)
+            repository.local.insertRecipes(recipesEntity)
         }
     }
 
      fun insertFavoriteRecipe(favoritesEntity: FavoritesEntity){
         viewModelScope.launch (Dispatchers.IO){
-            repository.localDataSource.insertFavoriteRecipe(favoritesEntity)
+            repository.local.insertFavoriteRecipe(favoritesEntity)
         }
     }
 
      fun deleteFavoriteRecipe(favoritesEntity: FavoritesEntity){
         viewModelScope.launch (Dispatchers.IO){
-            repository.localDataSource.deleteFavoriteRecipe(favoritesEntity)
+            repository.local.deleteFavoriteRecipe(favoritesEntity)
         }
     }
 
      fun deleteAllFavoriteRecipe(){
         viewModelScope.launch (Dispatchers.IO){
-            repository.localDataSource.deleteAllFavoriteRecipes()
+            repository.local.deleteAllFavoriteRecipes()
         }
     }
 
@@ -139,7 +139,7 @@ class MainViewModel @ViewModelInject constructor(
 
     private fun insertFoodJoke(foodJokeEntity: FoodJokeEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.localDataSource.insertFoodJoke(foodJokeEntity)
+            repository.local.insertFoodJoke(foodJokeEntity)
 
         }
     }
